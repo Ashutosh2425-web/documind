@@ -8,6 +8,16 @@ from .chunking import chunk_text
 from .embeddings import generate_embeddings
 from .vectorstore import add_chunks_to_store
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .models import Document, ChatMessage
+from .embeddings import generate_embeddings
+from .vectorstore import query_store
+from .prompt_builder import build_prompt
+from .llm import get_answer_from_llm
+from rest_framework.exceptions import ValidationError
+
+
 
 def hello_api(request):
     return JsonResponse({"message": "Hello from Django!"})
@@ -22,13 +32,62 @@ class UploadDocumentView(generics.CreateAPIView):
         file_obj = self.request.FILES.get('file')
         document = serializer.save(original_filename=file_obj.name)
 
-        extracted = extract_text(document.file.path)
+        try:
+            extracted = extract_text(document.file.path)
+        except Exception as e:
+            document.delete()
+            raise ValidationError(f"Could not extract text from this file: {str(e)}")
+
+        if not extracted or not extracted.strip():
+            document.delete()
+            raise ValidationError("No readable text found in this file. It may be a scanned/image-only document.")
+
         document.extracted_text = extracted
         document.save()
 
-        chunks = chunk_text(extracted)
-        embeddings = generate_embeddings(chunks)
+        try:
+            chunks = chunk_text(extracted)
+            embeddings = generate_embeddings(chunks)
+            add_chunks_to_store(document.id, chunks, embeddings)
+        except Exception as e:
+            document.delete()
+            raise ValidationError(f"Failed to process document for search: {str(e)}")
 
-        add_chunks_to_store(document.id, chunks, embeddings)
+class QueryDocumentView(APIView):
+    def post(self, request):
+        document_id = request.data.get('document_id')
+        question = request.data.get('question')
 
-        print(f"Stored {len(chunks)} chunks in vector DB for {document.original_filename}")
+        if not document_id or not question:
+            return Response({'error': 'document_id and question are required'}, status=400)
+
+        try:
+            document = Document.objects.get(id=document_id)
+        except Document.DoesNotExist:
+            return Response({'error': 'Document not found'}, status=404)
+
+        try:
+            query_embedding = generate_embeddings([question])[0]
+            results = query_store(query_embedding, top_k=3)
+            chunks = results['documents'][0]
+        except Exception as e:
+            return Response({'error': f'Retrieval failed: {str(e)}'}, status=500)
+
+        if not chunks:
+            return Response({'error': 'No relevant content found in this document.'}, status=404)
+
+        chat_history = ChatMessage.objects.filter(document=document).order_by('-created_at')[:3][::-1]
+        prompt = build_prompt(question, chunks, chat_history=chat_history)
+
+        try:
+            answer = get_answer_from_llm(prompt)
+        except Exception as e:
+            return Response({'error': f'LLM request failed. This may be a temporary issue — please try again. ({str(e)})'}, status=503)
+
+        ChatMessage.objects.create(document=document, question=question, answer=answer)
+
+        return Response({
+            'question': question,
+            'answer': answer,
+            'sources': chunks
+        })
