@@ -1,19 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import UploadPage from './UploadPage';
+import ChatPage from './ChatPage';
 
 function App() {
-  const [message, setMessage] = useState('Loading...');
-
-  useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/hello/')
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-      .catch((err) => setMessage('Error: ' + err.message));
-  }, []);
+  const [selectedDocument, setSelectedDocument] = useState(null);
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h1>DocuMind</h1>
-      <p>Backend says: {message}</p>
+    <div>
+      {!selectedDocument ? (
+        <UploadPage onDocumentSelect={setSelectedDocument} />
+      ) : (
+        <ChatPage
+          document={selectedDocument}
+          onBack={() => setSelectedDocument(null)}
+        />
+      )}
     </div>
   );
 }

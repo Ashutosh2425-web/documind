@@ -91,3 +91,6 @@ class QueryDocumentView(APIView):
             'answer': answer,
             'sources': chunks
         })
+class ListDocumentsView(generics.ListAPIView):
+    queryset = Document.objects.all().order_by('-uploaded_at')
+    serializer_class = DocumentSerializer
