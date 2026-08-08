@@ -1,22 +1,18 @@
 from django.http import JsonResponse
 from rest_framework import generics
 from rest_framework.parsers import MultiPartParser
-from .models import Document
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
+from .models import Document, ChatMessage
 from .serializers import DocumentSerializer
 from .text_extraction import extract_text
 from .chunking import chunk_text
 from .embeddings import generate_embeddings
-from .vectorstore import add_chunks_to_store
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .models import Document, ChatMessage
-from .embeddings import generate_embeddings
-from .vectorstore import query_store
+from .vectorstore import add_chunks_to_store, query_store
 from .prompt_builder import build_prompt
 from .llm import get_answer_from_llm
-from rest_framework.exceptions import ValidationError
-
 
 
 def hello_api(request):
@@ -27,10 +23,11 @@ class UploadDocumentView(generics.CreateAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
     parser_classes = [MultiPartParser]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         file_obj = self.request.FILES.get('file')
-        document = serializer.save(original_filename=file_obj.name)
+        document = serializer.save(original_filename=file_obj.name, user=self.request.user)
 
         try:
             extracted = extract_text(document.file.path)
@@ -53,7 +50,10 @@ class UploadDocumentView(generics.CreateAPIView):
             document.delete()
             raise ValidationError(f"Failed to process document for search: {str(e)}")
 
+
 class QueryDocumentView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         document_id = request.data.get('document_id')
         question = request.data.get('question')
@@ -62,7 +62,7 @@ class QueryDocumentView(APIView):
             return Response({'error': 'document_id and question are required'}, status=400)
 
         try:
-            document = Document.objects.get(id=document_id)
+            document = Document.objects.get(id=document_id, user=request.user)
         except Document.DoesNotExist:
             return Response({'error': 'Document not found'}, status=404)
 
@@ -91,6 +91,11 @@ class QueryDocumentView(APIView):
             'answer': answer,
             'sources': chunks
         })
+
+
 class ListDocumentsView(generics.ListAPIView):
-    queryset = Document.objects.all().order_by('-uploaded_at')
     serializer_class = DocumentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Document.objects.filter(user=self.request.user).order_by('-uploaded_at')
