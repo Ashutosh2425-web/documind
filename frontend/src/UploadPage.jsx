@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
 
-function UploadPage({ onDocumentSelect }) {
+function UploadPage({ token, onDocumentSelect }) {
   const [documents, setDocuments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
   const [dragActive, setDragActive] = useState(false);
 
-  // Load existing documents when page first opens
   useEffect(() => {
     fetchDocuments();
   }, []);
 
   const fetchDocuments = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/documents/');
+      const res = await fetch('http://127.0.0.1:8000/api/documents/', {
+        headers: { 'Authorization': `Token ${token}` },
+      });
       const data = await res.json();
       setDocuments(data);
     } catch (err) {
@@ -31,6 +32,7 @@ function UploadPage({ onDocumentSelect }) {
     try {
       const res = await fetch('http://127.0.0.1:8000/api/upload/', {
         method: 'POST',
+        headers: { 'Authorization': `Token ${token}` },
         body: formData,
       });
 

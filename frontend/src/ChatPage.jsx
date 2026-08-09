@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function ChatPage({ document, onBack }) {
+function ChatPage({ token, document, onBack }) {
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,10 @@ function ChatPage({ document, onBack }) {
     try {
       const res = await fetch('http://127.0.0.1:8000/api/query/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`,
+        },
         body: JSON.stringify({
           document_id: document.id,
           question: currentQuestion,
