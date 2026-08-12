@@ -1,7 +1,14 @@
-from sentence_transformers import SentenceTransformer
+import os
+from google import genai
+from dotenv import load_dotenv
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
+load_dotenv()
+
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 def generate_embeddings(chunks):
-    embeddings = model.encode(chunks)
-    return embeddings
+    result = client.models.embed_content(
+        model="gemini-embedding-001",
+        contents=chunks
+    )
+    return [e.values for e in result.embeddings]
