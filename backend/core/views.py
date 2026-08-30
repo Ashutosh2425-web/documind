@@ -27,17 +27,25 @@ class UploadDocumentView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         file_obj = self.request.FILES.get('file')
-        document = serializer.save(original_filename=file_obj.name, user=self.request.user)
+        document = serializer.save(
+            original_filename=file_obj.name,
+            user=self.request.user
+        )
 
         try:
             extracted = extract_text(document.file.path)
         except Exception as e:
             document.delete()
-            raise ValidationError(f"Could not extract text from this file: {str(e)}")
+            raise ValidationError(
+                f"Could not extract text from this file: {str(e)}"
+            )
 
         if not extracted or not extracted.strip():
             document.delete()
-            raise ValidationError("No readable text found in this file. It may be a scanned/image-only document.")
+            raise ValidationError(
+                "No readable text found in this file. "
+                "It may be a scanned/image-only document."
+            )
 
         document.extracted_text = extracted
         document.save()
@@ -48,7 +56,9 @@ class UploadDocumentView(generics.CreateAPIView):
             add_chunks_to_store(document.id, chunks, embeddings)
         except Exception as e:
             document.delete()
-            raise ValidationError(f"Failed to process document for search: {str(e)}")
+            raise ValidationError(
+                f"Failed to process document for search: {str(e)}"
+            )
 
 
 class QueryDocumentView(APIView):
@@ -59,32 +69,75 @@ class QueryDocumentView(APIView):
         question = request.data.get('question')
 
         if not document_id or not question:
-            return Response({'error': 'document_id and question are required'}, status=400)
+            return Response(
+                {'error': 'document_id and question are required'},
+                status=400
+            )
 
         try:
-            document = Document.objects.get(id=document_id, user=request.user)
+            document = Document.objects.get(
+                id=document_id,
+                user=request.user
+            )
         except Document.DoesNotExist:
-            return Response({'error': 'Document not found'}, status=404)
+            return Response(
+                {'error': 'Document not found'},
+                status=404
+            )
 
         try:
             query_embedding = generate_embeddings([question])[0]
-            results = query_store(query_embedding, top_k=3)
+
+            # Search only inside the document selected by the user.
+            results = query_store(
+                document_id,
+                query_embedding,
+                top_k=3
+            )
+
             chunks = results['documents'][0]
+
         except Exception as e:
-            return Response({'error': f'Retrieval failed: {str(e)}'}, status=500)
+            return Response(
+                {'error': f'Retrieval failed: {str(e)}'},
+                status=500
+            )
 
         if not chunks:
-            return Response({'error': 'No relevant content found in this document.'}, status=404)
+            return Response(
+                {'error': 'No relevant content found in this document.'},
+                status=404
+            )
 
-        chat_history = ChatMessage.objects.filter(document=document).order_by('-created_at')[:3][::-1]
-        prompt = build_prompt(question, chunks, chat_history=chat_history)
+        chat_history = (
+            ChatMessage.objects
+            .filter(document=document)
+            .order_by('-created_at')[:3][::-1]
+        )
+
+        prompt = build_prompt(
+            question,
+            chunks,
+            chat_history=chat_history
+        )
 
         try:
             answer = get_answer_from_llm(prompt)
         except Exception as e:
-            return Response({'error': f'LLM request failed. This may be a temporary issue — please try again. ({str(e)})'}, status=503)
+            return Response(
+                {
+                    'error':
+                    'LLM request failed. This may be a temporary issue — '
+                    f'please try again. ({str(e)})'
+                },
+                status=503
+            )
 
-        ChatMessage.objects.create(document=document, question=question, answer=answer)
+        ChatMessage.objects.create(
+            document=document,
+            question=question,
+            answer=answer
+        )
 
         return Response({
             'question': question,
@@ -98,4 +151,6 @@ class ListDocumentsView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Document.objects.filter(user=self.request.user).order_by('-uploaded_at')
+        return Document.objects.filter(
+            user=self.request.user
+        ).order_by('-uploaded_at')
