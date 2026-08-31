@@ -15,7 +15,6 @@ function ChatPage({ token, document, onBack }) {
     setLoading(true);
     setError(null);
 
-    // Show the user's message immediately.
     setMessages((prev) => [
       ...prev,
       {
@@ -67,6 +66,7 @@ function ChatPage({ token, document, onBack }) {
 
   return (
     <div style={styles.page}>
+      {/* HEADER */}
       <header style={styles.header}>
         <div style={styles.headerLeft}>
           <button onClick={onBack} style={styles.backButton}>
@@ -82,31 +82,49 @@ function ChatPage({ token, document, onBack }) {
               </div>
 
               <div style={styles.documentSubtitle}>
-                Ask questions about this document
+                Document context enabled
               </div>
             </div>
           </div>
         </div>
 
+        {/* BRAND */}
         <div style={styles.brand}>
-          <span style={styles.brandIcon}>✦</span>
-          DocuMind
+          <div style={styles.logo}>
+            <span style={styles.logoPaper}>▤</span>
+            <span style={styles.logoSpark}>✦</span>
+          </div>
+
+          <span>DocuMind</span>
         </div>
       </header>
 
+      {/* MAIN CHAT */}
       <main style={styles.chatArea}>
         <div style={styles.messagesContainer}>
+
+          {/* EMPTY STATE */}
           {messages.length === 0 && !loading && (
             <div style={styles.emptyState}>
-              <div style={styles.emptyIcon}>✦</div>
+
+              <div style={styles.emptyLogo}>
+                <div style={styles.emptyLogoPaper}>▤</div>
+                <div style={styles.emptyLogoSpark}>✦</div>
+              </div>
+
+              <div style={styles.eyebrow}>
+                DOCUMENT INTELLIGENCE
+              </div>
 
               <h1 style={styles.emptyTitle}>
-                Ask anything about your document
+                Ask anything about
+                <br />
+                <span style={styles.titleAccent}>your document</span>
               </h1>
 
               <p style={styles.emptyText}>
-                DocuMind will search your document and give you an
-                answer based on the available content.
+                Ask questions, summarize content, or explore information
+                directly from your uploaded document.
               </p>
 
               <div style={styles.suggestionRow}>
@@ -116,6 +134,7 @@ function ChatPage({ token, document, onBack }) {
                     setQuestion('What is this document about?')
                   }
                 >
+                  <span style={styles.suggestionIcon}>⌕</span>
                   What is this document about?
                 </button>
 
@@ -125,12 +144,29 @@ function ChatPage({ token, document, onBack }) {
                     setQuestion('Summarize the main points.')
                   }
                 >
+                  <span style={styles.suggestionIcon}>≡</span>
                   Summarize the main points
                 </button>
+
+                <button
+                  style={styles.suggestion}
+                  onClick={() =>
+                    setQuestion('Explain this document in simple terms.')
+                  }
+                >
+                  <span style={styles.suggestionIcon}>✧</span>
+                  Explain in simple terms
+                </button>
+              </div>
+
+              <div style={styles.contextBadge}>
+                <span style={styles.contextDot}>●</span>
+                Answers are based on {document.original_filename}
               </div>
             </div>
           )}
 
+          {/* MESSAGES */}
           {messages.map((msg, i) => (
             <div
               key={i}
@@ -141,7 +177,10 @@ function ChatPage({ token, document, onBack }) {
               }}
             >
               {msg.role === 'assistant' && (
-                <div style={styles.assistantAvatar}>✦</div>
+                <div style={styles.assistantAvatar}>
+                  <span>▤</span>
+                  <small>✦</small>
+                </div>
               )}
 
               <div
@@ -162,17 +201,25 @@ function ChatPage({ token, document, onBack }) {
                   {msg.text}
                 </div>
 
+                {/* SOURCES */}
                 {msg.sources && msg.sources.length > 0 && (
                   <details style={styles.sources}>
                     <summary style={styles.sourcesSummary}>
-                      📚 View sources ({msg.sources.length})
+                      <span>▤</span>
+                      Sources ({msg.sources.length})
                     </summary>
 
                     <div style={styles.sourcesList}>
                       {msg.sources.map((src, j) => (
                         <div key={j} style={styles.sourceCard}>
-                          <div style={styles.sourceTitle}>
-                            Source {j + 1}
+                          <div style={styles.sourceHeader}>
+                            <div style={styles.sourceIcon}>
+                              📄
+                            </div>
+
+                            <div style={styles.sourceTitle}>
+                              Source {j + 1}
+                            </div>
                           </div>
 
                           <div style={styles.sourceText}>
@@ -189,18 +236,26 @@ function ChatPage({ token, document, onBack }) {
             </div>
           ))}
 
+          {/* LOADING */}
           {loading && (
             <div style={styles.messageRow}>
-              <div style={styles.assistantAvatar}>✦</div>
+              <div style={styles.assistantAvatar}>
+                <span>▤</span>
+                <small>✦</small>
+              </div>
 
               <div style={styles.typingBubble}>
                 <span style={styles.dot}>●</span>
                 <span style={styles.dot}>●</span>
                 <span style={styles.dot}>●</span>
+                <span style={styles.thinkingText}>
+                  Searching your document...
+                </span>
               </div>
             </div>
           )}
 
+          {/* ERROR */}
           {error && (
             <div style={styles.errorBox}>
               <div style={styles.errorTitle}>
@@ -214,13 +269,14 @@ function ChatPage({ token, document, onBack }) {
           )}
         </div>
 
+        {/* INPUT */}
         <div style={styles.inputSection}>
           <div style={styles.inputBox}>
             <textarea
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask something about your document..."
+              placeholder="Ask anything about your document..."
               rows={1}
               disabled={loading}
               style={styles.textarea}
@@ -243,8 +299,15 @@ function ChatPage({ token, document, onBack }) {
             </button>
           </div>
 
-          <div style={styles.inputHint}>
-            Press Enter to send · Shift + Enter for a new line
+          <div style={styles.inputFooter}>
+            <span>
+              <span style={styles.footerDot}>●</span>
+              Document context enabled
+            </span>
+
+            <span>
+              Enter ↵ to send · Shift + Enter for a new line
+            </span>
           </div>
         </div>
       </main>
@@ -255,22 +318,24 @@ function ChatPage({ token, document, onBack }) {
 const styles = {
   page: {
     minHeight: '100vh',
-    background: '#f8fafc',
-    color: '#1e293b',
+    background: '#fffaf7',
+    color: '#2f2926',
     fontFamily:
       'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     display: 'flex',
     flexDirection: 'column',
   },
 
+  /* HEADER */
+
   header: {
     height: '72px',
     background: '#ffffff',
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: '1px solid #f0e5df',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '0 28px',
+    padding: '0 30px',
     position: 'sticky',
     top: 0,
     zIndex: 10,
@@ -284,9 +349,9 @@ const styles = {
   },
 
   backButton: {
-    border: 'none',
-    background: '#f1f5f9',
-    color: '#475569',
+    border: '1px solid #f0ded6',
+    background: '#fff8f4',
+    color: '#725c54',
     padding: '9px 14px',
     borderRadius: '10px',
     fontSize: '14px',
@@ -297,51 +362,77 @@ const styles = {
   documentInfo: {
     display: 'flex',
     alignItems: 'center',
-    gap: '11px',
+    gap: '12px',
     minWidth: 0,
   },
 
   documentIcon: {
-    width: '38px',
-    height: '38px',
-    borderRadius: '10px',
-    background: '#eef2ff',
+    width: '40px',
+    height: '40px',
+    borderRadius: '11px',
+    background: '#fff0e9',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '18px',
+    fontSize: '19px',
     flexShrink: 0,
   },
 
   documentName: {
     fontSize: '15px',
-    fontWeight: 700,
-    color: '#1e293b',
-    maxWidth: '380px',
+    fontWeight: 750,
+    color: '#332b28',
+    maxWidth: '400px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
 
   documentSubtitle: {
-    marginTop: '2px',
+    marginTop: '3px',
     fontSize: '12px',
-    color: '#94a3b8',
+    color: '#a48e85',
   },
+
+  /* BRAND */
 
   brand: {
-    fontSize: '18px',
+    fontSize: '19px',
     fontWeight: 800,
-    color: '#334155',
+    color: '#493a35',
     display: 'flex',
     alignItems: 'center',
-    gap: '7px',
+    gap: '9px',
   },
 
-  brandIcon: {
-    color: '#6366f1',
-    fontSize: '20px',
+  logo: {
+    position: 'relative',
+    width: '31px',
+    height: '31px',
+    borderRadius: '9px',
+    background: '#ff8066',
+    color: '#ffffff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 5px 14px rgba(255, 128, 102, 0.25)',
   },
+
+  logoPaper: {
+    fontSize: '17px',
+    fontWeight: 800,
+  },
+
+  logoSpark: {
+    position: 'absolute',
+    right: '-5px',
+    top: '-7px',
+    color: '#f4b942',
+    fontSize: '14px',
+    textShadow: '0 1px 2px rgba(0,0,0,0.08)',
+  },
+
+  /* CHAT */
 
   chatArea: {
     flex: 1,
@@ -355,43 +446,72 @@ const styles = {
 
   messagesContainer: {
     flex: 1,
-    padding: '38px 24px 140px',
+    padding: '38px 24px 150px',
   },
 
+  /* EMPTY STATE */
+
   emptyState: {
-    maxWidth: '680px',
-    margin: '100px auto 0',
+    maxWidth: '760px',
+    margin: '75px auto 0',
     textAlign: 'center',
   },
 
-  emptyIcon: {
-    width: '58px',
-    height: '58px',
-    borderRadius: '18px',
-    background: '#eef2ff',
-    color: '#6366f1',
+  emptyLogo: {
+    position: 'relative',
+    width: '72px',
+    height: '72px',
+    borderRadius: '22px',
+    background: '#fff0e9',
+    color: '#ff8066',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     margin: '0 auto 20px',
-    fontSize: '26px',
+    boxShadow: '0 8px 30px rgba(255, 128, 102, 0.12)',
+  },
+
+  emptyLogoPaper: {
+    fontSize: '32px',
     fontWeight: 800,
+  },
+
+  emptyLogoSpark: {
+    position: 'absolute',
+    right: '8px',
+    top: '5px',
+    color: '#f4b942',
+    fontSize: '19px',
+    fontWeight: 800,
+  },
+
+  eyebrow: {
+    fontSize: '11px',
+    letterSpacing: '2px',
+    fontWeight: 800,
+    color: '#ff8066',
+    marginBottom: '10px',
   },
 
   emptyTitle: {
     margin: 0,
-    fontSize: '30px',
-    lineHeight: 1.2,
-    fontWeight: 750,
-    color: '#1e293b',
+    fontSize: '36px',
+    lineHeight: 1.18,
+    fontWeight: 800,
+    color: '#302724',
+    letterSpacing: '-0.8px',
+  },
+
+  titleAccent: {
+    color: '#ff8066',
   },
 
   emptyText: {
-    maxWidth: '560px',
-    margin: '14px auto 0',
+    maxWidth: '580px',
+    margin: '16px auto 0',
     fontSize: '15px',
     lineHeight: 1.7,
-    color: '#64748b',
+    color: '#806f68',
   },
 
   suggestionRow: {
@@ -399,18 +519,46 @@ const styles = {
     justifyContent: 'center',
     gap: '10px',
     flexWrap: 'wrap',
-    marginTop: '28px',
+    marginTop: '30px',
   },
 
   suggestion: {
-    border: '1px solid #e2e8f0',
+    border: '1px solid #f0ded6',
     background: '#ffffff',
-    color: '#475569',
-    padding: '10px 14px',
-    borderRadius: '12px',
+    color: '#675750',
+    padding: '11px 15px',
+    borderRadius: '13px',
     fontSize: '13px',
     cursor: 'pointer',
+    boxShadow: '0 3px 12px rgba(77, 48, 38, 0.04)',
+    transition: 'all 0.2s ease',
   },
+
+  suggestionIcon: {
+    color: '#ff8066',
+    fontWeight: 800,
+    marginRight: '7px',
+  },
+
+  contextBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '7px',
+    marginTop: '24px',
+    padding: '8px 13px',
+    borderRadius: '20px',
+    background: '#fff3d9',
+    color: '#806638',
+    fontSize: '12px',
+    fontWeight: 600,
+  },
+
+  contextDot: {
+    color: '#f4b942',
+    fontSize: '9px',
+  },
+
+  /* MESSAGES */
 
   messageRow: {
     display: 'flex',
@@ -436,94 +584,128 @@ const styles = {
   },
 
   userBubble: {
-    background: '#6366f1',
+    background: '#ff8066',
     color: '#ffffff',
     borderBottomRightRadius: '5px',
+    boxShadow: '0 5px 16px rgba(255, 128, 102, 0.18)',
   },
 
   assistantBubble: {
     background: '#ffffff',
-    color: '#334155',
-    border: '1px solid #e8edf3',
+    color: '#403531',
+    border: '1px solid #f0e5df',
     borderBottomLeftRadius: '5px',
-    boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)',
+    boxShadow: '0 3px 15px rgba(77, 48, 38, 0.05)',
   },
 
   assistantAvatar: {
-    width: '32px',
-    height: '32px',
-    borderRadius: '10px',
-    background: '#eef2ff',
-    color: '#6366f1',
+    position: 'relative',
+    width: '34px',
+    height: '34px',
+    borderRadius: '11px',
+    background: '#fff0e9',
+    color: '#ff8066',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    fontSize: '15px',
+    fontSize: '16px',
     fontWeight: 800,
   },
 
+  assistantAvatarSmall: {
+    position: 'absolute',
+    right: '-2px',
+    top: '-4px',
+  },
+
+  /* SOURCES */
+
   sources: {
     width: '100%',
-    marginTop: '9px',
+    marginTop: '10px',
   },
 
   sourcesSummary: {
     cursor: 'pointer',
-    color: '#6366f1',
+    color: '#e76f51',
     fontSize: '13px',
-    fontWeight: 600,
+    fontWeight: 700,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
   },
 
   sourcesList: {
     marginTop: '9px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '7px',
+    gap: '8px',
   },
 
   sourceCard: {
-    background: '#ffffff',
-    border: '1px solid #e5e7eb',
-    borderRadius: '10px',
-    padding: '10px 12px',
+    background: '#fffdfb',
+    border: '1px solid #f0e5df',
+    borderRadius: '11px',
+    padding: '11px 13px',
+  },
+
+  sourceHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    marginBottom: '5px',
+  },
+
+  sourceIcon: {
+    fontSize: '13px',
   },
 
   sourceTitle: {
     fontSize: '12px',
-    fontWeight: 700,
-    color: '#64748b',
-    marginBottom: '4px',
+    fontWeight: 750,
+    color: '#806f68',
   },
 
   sourceText: {
     fontSize: '12px',
     lineHeight: 1.5,
-    color: '#64748b',
+    color: '#897770',
   },
+
+  /* TYPING */
 
   typingBubble: {
     background: '#ffffff',
-    border: '1px solid #e8edf3',
+    border: '1px solid #f0e5df',
     borderRadius: '17px',
     padding: '12px 16px',
     display: 'flex',
+    alignItems: 'center',
     gap: '4px',
-    boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)',
+    boxShadow: '0 3px 15px rgba(77, 48, 38, 0.05)',
   },
 
   dot: {
-    fontSize: '8px',
-    color: '#94a3b8',
+    fontSize: '7px',
+    color: '#f4b942',
   },
+
+  thinkingText: {
+    marginLeft: '7px',
+    fontSize: '12px',
+    color: '#99857c',
+  },
+
+  /* ERROR */
 
   errorBox: {
     margin: '0 auto 20px',
     maxWidth: '700px',
     width: '100%',
     boxSizing: 'border-box',
-    background: '#fff7f7',
-    border: '1px solid #fecaca',
+    background: '#fff5f2',
+    border: '1px solid #ffd2c7',
     borderRadius: '12px',
     padding: '13px 16px',
   },
@@ -531,14 +713,16 @@ const styles = {
   errorTitle: {
     fontSize: '13px',
     fontWeight: 700,
-    color: '#b91c1c',
+    color: '#c94f38',
     marginBottom: '3px',
   },
 
   errorText: {
     fontSize: '13px',
-    color: '#dc2626',
+    color: '#d46651',
   },
+
+  /* INPUT */
 
   inputSection: {
     position: 'fixed',
@@ -546,8 +730,8 @@ const styles = {
     left: 0,
     right: 0,
     background:
-      'linear-gradient(to top, #f8fafc 72%, rgba(248, 250, 252, 0))',
-    padding: '30px 24px 18px',
+      'linear-gradient(to top, #fffaf7 75%, rgba(255, 250, 247, 0))',
+    padding: '30px 24px 17px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -557,14 +741,14 @@ const styles = {
     width: '100%',
     maxWidth: '900px',
     background: '#ffffff',
-    border: '1px solid #dbe2ea',
-    borderRadius: '18px',
-    padding: '8px 9px 8px 16px',
+    border: '1px solid #eadbd4',
+    borderRadius: '19px',
+    padding: '8px 9px 8px 17px',
     display: 'flex',
     alignItems: 'flex-end',
     gap: '10px',
     boxSizing: 'border-box',
-    boxShadow: '0 5px 25px rgba(15, 23, 42, 0.07)',
+    boxShadow: '0 7px 28px rgba(77, 48, 38, 0.08)',
   },
 
   textarea: {
@@ -573,7 +757,7 @@ const styles = {
     outline: 'none',
     resize: 'none',
     background: 'transparent',
-    color: '#1e293b',
+    color: '#342c29',
     fontSize: '15px',
     lineHeight: 1.5,
     padding: '7px 0',
@@ -581,23 +765,34 @@ const styles = {
   },
 
   sendButton: {
-    width: '40px',
-    height: '40px',
+    width: '41px',
+    height: '41px',
     border: 'none',
-    borderRadius: '12px',
-    background: '#6366f1',
+    borderRadius: '13px',
+    background: '#ff8066',
     color: '#ffffff',
     fontSize: '20px',
-    fontWeight: 700,
+    fontWeight: 800,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    boxShadow: '0 5px 13px rgba(255, 128, 102, 0.22)',
   },
 
-  inputHint: {
-    marginTop: '7px',
+  inputFooter: {
+    width: '100%',
+    maxWidth: '900px',
+    marginTop: '8px',
+    display: 'flex',
+    justifyContent: 'space-between',
     fontSize: '11px',
-    color: '#94a3b8',
+    color: '#a8958d',
+  },
+
+  footerDot: {
+    color: '#f4b942',
+    fontSize: '8px',
+    marginRight: '5px',
   },
 };
 
