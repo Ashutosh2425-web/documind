@@ -1,19 +1,28 @@
 def chunk_text(text, chunk_size=1000, overlap=200):
     """
-    Split document text into overlapping chunks while trying to
-    preserve paragraph boundaries.
+    Split document text into meaningful overlapping chunks.
 
-    The function still returns a list of strings so it remains
-    compatible with the existing embedding and vector-store pipeline.
+    The function tries to preserve paragraph boundaries while
+    maintaining a consistent maximum chunk size.
+
+    Returns:
+        list[str]: A list of text chunks.
     """
 
     if not text or not text.strip():
         return []
 
-    
+    if chunk_size <= 0:
+        raise ValueError("chunk_size must be greater than 0.")
+
+    if overlap < 0:
+        raise ValueError("overlap cannot be negative.")
+
+    if overlap >= chunk_size:
+        raise ValueError("overlap must be smaller than chunk_size.")
+
     text = text.replace("\r\n", "\n").replace("\r", "\n").strip()
 
-    # Split the document into paragraphs.
     paragraphs = [
         paragraph.strip()
         for paragraph in text.split("\n\n")
@@ -25,34 +34,62 @@ def chunk_text(text, chunk_size=1000, overlap=200):
 
     for paragraph in paragraphs:
 
+        if len(paragraph) > chunk_size:
+
+            if current_chunk:
+                chunks.append(current_chunk)
+                current_chunk = ""
+
+            start = 0
+
+            while start < len(paragraph):
+                end = start + chunk_size
+                chunks.append(paragraph[start:end])
+
+                if end >= len(paragraph):
+                    break
+
+                start = end - overlap
+
+            continue
+
         if not current_chunk:
             current_chunk = paragraph
+            continue
 
-        elif len(current_chunk) + len(paragraph) + 2 <= chunk_size:
-            current_chunk += "\n\n" + paragraph
+        combined = current_chunk + "\n\n" + paragraph
+
+        if len(combined) <= chunk_size:
+            current_chunk = combined
 
         else:
-           
             chunks.append(current_chunk)
 
-           
-            overlap_text = current_chunk[-overlap:] if overlap > 0 else ""
-
-            current_chunk = (
-                overlap_text + "\n\n" + paragraph
-                if overlap_text
-                else paragraph
+            overlap_text = (
+                current_chunk[-overlap:]
+                if overlap > 0
+                else ""
             )
 
-            
+            if overlap_text:
+                current_chunk = overlap_text + "\n\n" + paragraph
+            else:
+                current_chunk = paragraph
+
+
             while len(current_chunk) > chunk_size:
+
                 chunks.append(current_chunk[:chunk_size])
 
-                current_chunk = current_chunk[
-                    max(0, chunk_size - overlap):
-                ]
+                if overlap > 0:
+                    current_chunk = current_chunk[
+                        chunk_size - overlap:
+                    ]
+                else:
+                    current_chunk = current_chunk[chunk_size:]
 
-    if current_chunk:
-        chunks.append(current_chunk)
+   
+    if current_chunk.strip():
+        chunks.append(current_chunk.strip())
 
     return chunks
