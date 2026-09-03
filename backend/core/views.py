@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
+
 from .models import Document, ChatMessage
 from .serializers import DocumentSerializer
 from .text_extraction import extract_text
@@ -27,6 +28,7 @@ class UploadDocumentView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         file_obj = self.request.FILES.get('file')
+
         document = serializer.save(
             original_filename=file_obj.name,
             user=self.request.user
@@ -34,14 +36,17 @@ class UploadDocumentView(generics.CreateAPIView):
 
         try:
             extracted = extract_text(document.file.path)
+
         except Exception as e:
             document.delete()
+
             raise ValidationError(
                 f"Could not extract text from this file: {str(e)}"
             )
 
         if not extracted or not extracted.strip():
             document.delete()
+
             raise ValidationError(
                 "No readable text found in this file. "
                 "It may be a scanned/image-only document."
@@ -52,10 +57,18 @@ class UploadDocumentView(generics.CreateAPIView):
 
         try:
             chunks = chunk_text(extracted)
+
             embeddings = generate_embeddings(chunks)
-            add_chunks_to_store(document.id, chunks, embeddings)
+
+            add_chunks_to_store(
+                document.id,
+                chunks,
+                embeddings
+            )
+
         except Exception as e:
             document.delete()
+
             raise ValidationError(
                 f"Failed to process document for search: {str(e)}"
             )
@@ -70,7 +83,10 @@ class QueryDocumentView(APIView):
 
         if not document_id or not question:
             return Response(
-                {'error': 'document_id and question are required'},
+                {
+                    'error':
+                    'document_id and question are required'
+                },
                 status=400
             )
 
@@ -79,6 +95,7 @@ class QueryDocumentView(APIView):
                 id=document_id,
                 user=request.user
             )
+
         except Document.DoesNotExist:
             return Response(
                 {'error': 'Document not found'},
@@ -86,27 +103,61 @@ class QueryDocumentView(APIView):
             )
 
         try:
-            query_embedding = generate_embeddings([question])[0]
+            # The embedding function expects chunk objects.
+            # For a question, we only need the text field.
+            question_chunk = {
+                "text": question,
+                "page": None
+            }
 
-            # Search only inside the document selected by the user.
+            query_embedding = generate_embeddings(
+                [question_chunk]
+            )[0]
+
+            # Search only inside the selected document.
             results = query_store(
                 document_id,
                 query_embedding,
                 top_k=3
             )
 
-            chunks = results['documents'][0]
+            chunks = results.get('documents', [[]])[0]
+            metadatas = results.get('metadatas', [[]])[0]
 
         except Exception as e:
             return Response(
-                {'error': f'Retrieval failed: {str(e)}'},
+                {
+                    'error':
+                    f'Retrieval failed: {str(e)}'
+                },
                 status=500
             )
 
         if not chunks:
             return Response(
-                {'error': 'No relevant content found in this document.'},
+                {
+                    'error':
+                    'No relevant content found in this document.'
+                },
                 status=404
+            )
+
+        # Combine retrieved text with its page information.
+        sources = []
+
+        for index, chunk in enumerate(chunks):
+            metadata = (
+                metadatas[index]
+                if index < len(metadatas)
+                else {}
+            )
+
+            sources.append(
+                {
+                    "text": chunk,
+                    "page": metadata.get("page"),
+                    "chunk_index": metadata.get("chunk_index")
+                }
             )
 
         chat_history = (
@@ -115,14 +166,22 @@ class QueryDocumentView(APIView):
             .order_by('-created_at')[:3][::-1]
         )
 
+        # The prompt builder currently expects text chunks,
+        # so pass only the retrieved text to it.
+        retrieved_texts = [
+            source["text"]
+            for source in sources
+        ]
+
         prompt = build_prompt(
             question,
-            chunks,
+            retrieved_texts,
             chat_history=chat_history
         )
 
         try:
             answer = get_answer_from_llm(prompt)
+
         except Exception as e:
             return Response(
                 {
@@ -139,11 +198,13 @@ class QueryDocumentView(APIView):
             answer=answer
         )
 
-        return Response({
-            'question': question,
-            'answer': answer,
-            'sources': chunks
-        })
+        return Response(
+            {
+                'question': question,
+                'answer': answer,
+                'sources': sources
+            }
+        )
 
 
 class ListDocumentsView(generics.ListAPIView):
