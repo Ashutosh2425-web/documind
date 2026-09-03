@@ -2,17 +2,41 @@ def build_prompt(question, chunks, chat_history=None):
     """
     Build a grounded RAG prompt using retrieved document chunks
     and optional conversation history.
+
+    Chunks can be either:
+        - plain strings
+        - dictionaries containing "text" and "page"
     """
 
     # Build the document context.
-    # Each retrieved chunk is clearly separated so the LLM
-    # can distinguish between different pieces of evidence.
+    # Each retrieved source is clearly separated and includes
+    # its page number when available.
     context_parts = []
 
     for i, chunk in enumerate(chunks, start=1):
+
+        if isinstance(chunk, dict):
+            chunk_text = chunk.get("text", "")
+            page = chunk.get("page")
+
+            if page is not None:
+                source_label = (
+                    f"--- Retrieved Source {i} | Page {page} ---"
+                )
+            else:
+                source_label = (
+                    f"--- Retrieved Source {i} ---"
+                )
+
+        else:
+            chunk_text = chunk
+            source_label = (
+                f"--- Retrieved Source {i} ---"
+            )
+
         context_parts.append(
-            f"--- Retrieved Source {i} ---\n"
-            f"{chunk}\n"
+            f"{source_label}\n"
+            f"{chunk_text}\n"
             f"--- End Source {i} ---"
         )
 
@@ -48,6 +72,9 @@ DOCUMENT CONTEXT
 The following passages were retrieved from the user's document.
 Treat them as the only factual source for answering the question.
 
+Each source may include a page number. Use the page number when
+referring to where information came from.
+
 {context}
 
 {history_text}
@@ -80,7 +107,10 @@ INSTRUCTIONS
    "it", "they", or "that method", but the actual answer must still be
    supported by the DOCUMENT CONTEXT.
 
-8. Keep the answer clear and directly relevant to the user's question.
+8. When the answer is supported by a source with a page number,
+   mention the relevant page naturally when appropriate.
+
+9. Keep the answer clear and directly relevant to the user's question.
 
 Answer:"""
 
