@@ -12,7 +12,7 @@ def add_chunks_to_store(document_id, chunks, embeddings):
     """
     Store page-aware document chunks in ChromaDB.
 
-    Each chunk is expected to have:
+    Each chunk has the format:
         {
             "text": "...",
             "page": 1
@@ -48,7 +48,10 @@ def add_chunks_to_store(document_id, chunks, embeddings):
 
 def query_store(document_id, query_embedding, top_k=3):
     """
-    Search for the most relevant chunks inside one document.
+    Search only inside the selected document.
+
+    Returns the most relevant text chunks together with
+    their metadata, including page numbers.
     """
 
     results = collection.query(
