@@ -12,11 +12,14 @@ function UploadPage({ token, onDocumentSelect }) {
 
   const fetchDocuments = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/documents/', {
-        headers: {
-          'Authorization': `Token ${token}`,
-        },
-      });
+      const res = await fetch(
+        'http://127.0.0.1:8000/api/documents/',
+        {
+          headers: {
+            'Authorization': `Token ${token}`,
+          },
+        }
+      );
 
       const data = await res.json();
       setDocuments(data);
@@ -33,13 +36,16 @@ function UploadPage({ token, onDocumentSelect }) {
     formData.append('file', file);
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/upload/', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${token}`,
-        },
-        body: formData,
-      });
+      const res = await fetch(
+        'http://127.0.0.1:8000/api/upload/',
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Token ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       const data = await res.json();
 
@@ -85,28 +91,46 @@ function UploadPage({ token, onDocumentSelect }) {
 
       {/* Header */}
       <header style={styles.header}>
+
         <div style={styles.logoSection}>
-          <div style={styles.logoIcon}>✦</div>
+
+          {/* PDF Logo */}
+          <div style={styles.logoIcon}>
+            <span style={styles.pdfLogo}>PDF</span>
+          </div>
 
           <div>
-            <div style={styles.logoText}>DocuMind</div>
+            <div style={styles.logoText}>
+              DocuMind
+            </div>
+
             <div style={styles.logoSubtitle}>
               Intelligent document assistant
             </div>
           </div>
+
         </div>
 
         <div style={styles.headerRight}>
+
           <div style={styles.userBadge}>
-            <div style={styles.userAvatar}>U</div>
-            <span>User</span>
+            <div style={styles.userAvatar}>
+              U
+            </div>
+
+            <span>
+              User
+            </span>
           </div>
 
           <button style={styles.logoutButton}>
             Logout
           </button>
+
         </div>
+
       </header>
+
 
       {/* Main Layout */}
       <div style={styles.layout}>
@@ -115,24 +139,39 @@ function UploadPage({ token, onDocumentSelect }) {
         <aside style={styles.sidebar}>
 
           <div style={styles.sidebarHeader}>
+
             <div>
-              <h2 style={styles.sidebarTitle}>Documents</h2>
+
+              <h2 style={styles.sidebarTitle}>
+                Documents
+              </h2>
 
               <p style={styles.documentCount}>
                 {documents.length}{' '}
-                {documents.length === 1 ? 'document' : 'documents'}
+                {documents.length === 1
+                  ? 'document'
+                  : 'documents'}
               </p>
+
             </div>
 
             <div style={styles.documentIcon}>
               📄
             </div>
+
           </div>
 
-          {/* Upload button */}
+
+          {/* Upload Button */}
           <label style={styles.sidebarUploadButton}>
-            <span style={styles.plusIcon}>+</span>
-            <span>Upload document</span>
+
+            <span style={styles.plusIcon}>
+              +
+            </span>
+
+            <span>
+              Upload document
+            </span>
 
             <input
               type="file"
@@ -140,14 +179,20 @@ function UploadPage({ token, onDocumentSelect }) {
               style={{ display: 'none' }}
               accept=".pdf,.docx,.txt"
             />
+
           </label>
+
 
           {/* Document List */}
           <div style={styles.documentList}>
 
             {documents.length === 0 ? (
+
               <div style={styles.emptyDocuments}>
-                <div style={styles.emptyIcon}>📂</div>
+
+                <div style={styles.emptyIcon}>
+                  📂
+                </div>
 
                 <p style={styles.emptyTitle}>
                   No documents yet
@@ -156,53 +201,79 @@ function UploadPage({ token, onDocumentSelect }) {
                 <p style={styles.emptyText}>
                   Upload your first document to get started.
                 </p>
+
               </div>
+
             ) : (
+
               documents.map((doc) => (
+
                 <div
                   key={doc.id}
                   onClick={() => onDocumentSelect(doc)}
                   style={styles.documentItem}
+
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#fff4ee';
-                    e.currentTarget.style.borderColor = '#ffd5c5';
+                    e.currentTarget.style.backgroundColor =
+                      '#fff4ee';
+
+                    e.currentTarget.style.borderColor =
+                      '#ffd5c5';
                   }}
+
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#ffffff';
-                    e.currentTarget.style.borderColor = '#eee5df';
+                    e.currentTarget.style.backgroundColor =
+                      '#ffffff';
+
+                    e.currentTarget.style.borderColor =
+                      '#eee5df';
                   }}
                 >
+
                   <div style={styles.fileIcon}>
+
                     {doc.original_filename
                       ?.toLowerCase()
                       .endsWith('.pdf')
                       ? 'PDF'
                       : 'DOC'}
+
                   </div>
 
+
                   <div style={styles.documentInfo}>
+
                     <div style={styles.documentName}>
                       {doc.original_filename}
                     </div>
 
                     <div style={styles.documentDate}>
+
                       {new Date(
                         doc.uploaded_at
                       ).toLocaleDateString()}
+
                     </div>
+
                   </div>
+
 
                   <div style={styles.arrow}>
                     ›
                   </div>
+
                 </div>
+
               ))
+
             )}
 
           </div>
 
-          {/* Sidebar footer */}
+
+          {/* Sidebar Footer */}
           <div style={styles.sidebarFooter}>
+
             <div style={styles.supportText}>
               Supported files
             </div>
@@ -210,9 +281,11 @@ function UploadPage({ token, onDocumentSelect }) {
             <div style={styles.fileTypes}>
               PDF · DOCX · TXT
             </div>
+
           </div>
 
         </aside>
+
 
         {/* Main Content */}
         <main style={styles.content}>
@@ -220,24 +293,39 @@ function UploadPage({ token, onDocumentSelect }) {
           <div style={styles.contentInner}>
 
             <div style={styles.welcomeSection}>
+
               <div style={styles.welcomeBadge}>
-                <span>✦</span>
+
+                <span>
+                  ✦
+                </span>
+
                 Document workspace
+
               </div>
 
+
               <h1 style={styles.heading}>
+
                 What would you like to
+
                 <span style={styles.headingAccent}>
                   {' '}explore?
                 </span>
+
               </h1>
 
+
               <p style={styles.description}>
+
                 Upload a document and let DocuMind help you
                 understand, analyze, and find information
                 from it.
+
               </p>
+
             </div>
+
 
             {/* Upload Zone */}
             <div
@@ -245,8 +333,13 @@ function UploadPage({ token, onDocumentSelect }) {
                 e.preventDefault();
                 setDragActive(true);
               }}
-              onDragLeave={() => setDragActive(false)}
+
+              onDragLeave={() => {
+                setDragActive(false);
+              }}
+
               onDrop={handleDrop}
+
               style={{
                 ...styles.uploadCard,
                 ...(dragActive
@@ -256,7 +349,9 @@ function UploadPage({ token, onDocumentSelect }) {
             >
 
               {uploading ? (
+
                 <div style={styles.uploadContent}>
+
                   <div style={styles.loadingCircle}>
                     ⟳
                   </div>
@@ -269,30 +364,40 @@ function UploadPage({ token, onDocumentSelect }) {
                     Uploading and preparing your document...
                     this may take a moment.
                   </p>
+
                 </div>
+
               ) : (
+
                 <div style={styles.uploadContent}>
 
                   <div style={styles.uploadIconWrapper}>
+
                     <div style={styles.uploadIcon}>
                       ↑
                     </div>
+
                   </div>
+
 
                   <h2 style={styles.uploadTitle}>
                     Drop your document here
                   </h2>
+
 
                   <p style={styles.uploadDescription}>
                     Drag and drop your PDF, DOCX, or TXT file
                     here
                   </p>
 
+
                   <div style={styles.orText}>
                     or
                   </div>
 
+
                   <label style={styles.browseButton}>
+
                     Browse files
 
                     <input
@@ -301,37 +406,50 @@ function UploadPage({ token, onDocumentSelect }) {
                       style={{ display: 'none' }}
                       accept=".pdf,.docx,.txt"
                     />
+
                   </label>
+
 
                   <p style={styles.fileHint}>
                     PDF, DOCX and TXT files supported
                   </p>
 
                 </div>
+
               )}
 
             </div>
 
+
             {/* Error */}
             {error && (
+
               <div style={styles.errorBox}>
-                <span style={styles.errorIcon}>!</span>
+
+                <span style={styles.errorIcon}>
+                  !
+                </span>
 
                 <span>
                   {error}
                 </span>
+
               </div>
+
             )}
 
-            {/* Bottom information cards */}
+
+            {/* Information Cards */}
             <div style={styles.infoGrid}>
 
               <div style={styles.infoCard}>
+
                 <div style={styles.infoIcon}>
                   🔍
                 </div>
 
                 <div>
+
                   <h3 style={styles.infoTitle}>
                     Ask questions
                   </h3>
@@ -339,15 +457,20 @@ function UploadPage({ token, onDocumentSelect }) {
                   <p style={styles.infoText}>
                     Find answers directly from your documents.
                   </p>
+
                 </div>
+
               </div>
 
+
               <div style={styles.infoCard}>
+
                 <div style={styles.infoIcon}>
                   ⚡
                 </div>
 
                 <div>
+
                   <h3 style={styles.infoTitle}>
                     Fast retrieval
                   </h3>
@@ -355,15 +478,20 @@ function UploadPage({ token, onDocumentSelect }) {
                   <p style={styles.infoText}>
                     Quickly find the most relevant information.
                   </p>
+
                 </div>
+
               </div>
 
+
               <div style={styles.infoCard}>
+
                 <div style={styles.infoIcon}>
                   📑
                 </div>
 
                 <div>
+
                   <h3 style={styles.infoTitle}>
                     Source aware
                   </h3>
@@ -371,7 +499,9 @@ function UploadPage({ token, onDocumentSelect }) {
                   <p style={styles.infoText}>
                     See where answers were found in your document.
                   </p>
+
                 </div>
+
               </div>
 
             </div>
@@ -386,7 +516,9 @@ function UploadPage({ token, onDocumentSelect }) {
   );
 }
 
+
 const styles = {
+
   page: {
     minHeight: '100vh',
     background: '#fffaf7',
@@ -394,6 +526,7 @@ const styles = {
     fontFamily:
       '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
+
 
   header: {
     height: '72px',
@@ -406,24 +539,38 @@ const styles = {
     boxSizing: 'border-box',
   },
 
+
   logoSection: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
   },
 
+
   logoIcon: {
     width: '38px',
     height: '38px',
-    borderRadius: '11px',
+    borderRadius: '10px',
     background: '#ff8066',
     color: '#ffffff',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '21px',
-    fontWeight: '700',
+    fontWeight: '800',
+    boxShadow:
+      '0 3px 8px rgba(255, 128, 102, 0.18)',
   },
+
+
+  pdfLogo: {
+    fontSize: '10px',
+    letterSpacing: '0.5px',
+    border: '1.5px solid #ffffff',
+    borderRadius: '3px',
+    padding: '5px 3px',
+    lineHeight: 1,
+  },
+
 
   logoText: {
     fontSize: '20px',
@@ -431,17 +578,20 @@ const styles = {
     color: '#292524',
   },
 
+
   logoSubtitle: {
     fontSize: '11px',
     color: '#9a8f89',
     marginTop: '1px',
   },
 
+
   headerRight: {
     display: 'flex',
     alignItems: 'center',
     gap: '20px',
   },
+
 
   userBadge: {
     display: 'flex',
@@ -451,6 +601,7 @@ const styles = {
     fontSize: '14px',
     fontWeight: '500',
   },
+
 
   userAvatar: {
     width: '32px',
@@ -464,6 +615,7 @@ const styles = {
     fontWeight: '700',
   },
 
+
   logoutButton: {
     border: 'none',
     background: 'transparent',
@@ -472,10 +624,12 @@ const styles = {
     fontSize: '14px',
   },
 
+
   layout: {
     display: 'flex',
     minHeight: 'calc(100vh - 72px)',
   },
+
 
   sidebar: {
     width: '290px',
@@ -487,12 +641,14 @@ const styles = {
     boxSizing: 'border-box',
   },
 
+
   sidebarHeader: {
     padding: '25px 22px 17px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+
 
   sidebarTitle: {
     margin: 0,
@@ -501,11 +657,13 @@ const styles = {
     color: '#302b28',
   },
 
+
   documentCount: {
     margin: '5px 0 0',
     fontSize: '12px',
     color: '#a0958e',
   },
+
 
   documentIcon: {
     width: '38px',
@@ -517,6 +675,7 @@ const styles = {
     justifyContent: 'center',
     fontSize: '17px',
   },
+
 
   sidebarUploadButton: {
     margin: '0 18px 15px',
@@ -531,19 +690,23 @@ const styles = {
     cursor: 'pointer',
     fontSize: '13px',
     fontWeight: '600',
-    boxShadow: '0 4px 12px rgba(255, 128, 102, 0.18)',
+    boxShadow:
+      '0 4px 12px rgba(255, 128, 102, 0.18)',
   },
+
 
   plusIcon: {
     fontSize: '19px',
     lineHeight: 1,
   },
 
+
   documentList: {
     flex: 1,
     overflowY: 'auto',
     padding: '0 12px',
   },
+
 
   documentItem: {
     display: 'flex',
@@ -557,6 +720,7 @@ const styles = {
     background: '#ffffff',
     transition: 'all 0.15s ease',
   },
+
 
   fileIcon: {
     width: '34px',
@@ -572,10 +736,12 @@ const styles = {
     flexShrink: 0,
   },
 
+
   documentInfo: {
     minWidth: 0,
     flex: 1,
   },
+
 
   documentName: {
     fontSize: '13px',
@@ -586,11 +752,13 @@ const styles = {
     textOverflow: 'ellipsis',
   },
 
+
   documentDate: {
     fontSize: '10px',
     color: '#a0958e',
     marginTop: '4px',
   },
+
 
   arrow: {
     color: '#b5aaa4',
@@ -598,16 +766,19 @@ const styles = {
     flexShrink: 0,
   },
 
+
   emptyDocuments: {
     padding: '35px 18px',
     textAlign: 'center',
   },
+
 
   emptyIcon: {
     fontSize: '30px',
     marginBottom: '10px',
     opacity: 0.7,
   },
+
 
   emptyTitle: {
     margin: '0 0 5px',
@@ -616,6 +787,7 @@ const styles = {
     color: '#625a55',
   },
 
+
   emptyText: {
     margin: 0,
     fontSize: '11px',
@@ -623,10 +795,12 @@ const styles = {
     color: '#a0958e',
   },
 
+
   sidebarFooter: {
     padding: '16px 20px 20px',
     borderTop: '1px solid #eee5df',
   },
+
 
   supportText: {
     fontSize: '10px',
@@ -634,11 +808,13 @@ const styles = {
     marginBottom: '4px',
   },
 
+
   fileTypes: {
     fontSize: '10px',
     color: '#756b65',
     fontWeight: '600',
   },
+
 
   content: {
     flex: 1,
@@ -646,16 +822,19 @@ const styles = {
     boxSizing: 'border-box',
   },
 
+
   contentInner: {
     maxWidth: '920px',
     margin: '0 auto',
     padding: '70px 45px 50px',
   },
 
+
   welcomeSection: {
     textAlign: 'center',
     marginBottom: '36px',
   },
+
 
   welcomeBadge: {
     display: 'inline-flex',
@@ -670,6 +849,7 @@ const styles = {
     marginBottom: '17px',
   },
 
+
   heading: {
     margin: 0,
     fontSize: '38px',
@@ -679,9 +859,11 @@ const styles = {
     color: '#302b28',
   },
 
+
   headingAccent: {
     color: '#ff8066',
   },
+
 
   description: {
     maxWidth: '590px',
@@ -690,6 +872,7 @@ const styles = {
     fontSize: '15px',
     lineHeight: 1.6,
   },
+
 
   uploadCard: {
     border: '2px dashed #e7d9d1',
@@ -703,16 +886,19 @@ const styles = {
     boxSizing: 'border-box',
   },
 
+
   uploadCardActive: {
     border: '2px dashed #ff8066',
     background: '#fff5f0',
     transform: 'scale(1.005)',
   },
 
+
   uploadContent: {
     textAlign: 'center',
     padding: '35px 20px',
   },
+
 
   uploadIconWrapper: {
     width: '70px',
@@ -725,11 +911,13 @@ const styles = {
     margin: '0 auto 18px',
   },
 
+
   uploadIcon: {
     fontSize: '32px',
     color: '#ff8066',
     fontWeight: '700',
   },
+
 
   loadingCircle: {
     width: '60px',
@@ -744,6 +932,7 @@ const styles = {
     margin: '0 auto 18px',
   },
 
+
   uploadTitle: {
     margin: 0,
     fontSize: '22px',
@@ -751,17 +940,20 @@ const styles = {
     color: '#39322e',
   },
 
+
   uploadDescription: {
     margin: '9px 0 0',
     color: '#958a83',
     fontSize: '13px',
   },
 
+
   orText: {
     margin: '17px 0',
     color: '#b0a59f',
     fontSize: '12px',
   },
+
 
   browseButton: {
     display: 'inline-flex',
@@ -774,14 +966,17 @@ const styles = {
     fontSize: '13px',
     fontWeight: '600',
     cursor: 'pointer',
-    boxShadow: '0 4px 12px rgba(255, 128, 102, 0.18)',
+    boxShadow:
+      '0 4px 12px rgba(255, 128, 102, 0.18)',
   },
+
 
   fileHint: {
     margin: '13px 0 0',
     color: '#b0a59f',
     fontSize: '10px',
   },
+
 
   errorBox: {
     marginTop: '18px',
@@ -796,6 +991,7 @@ const styles = {
     fontSize: '12px',
   },
 
+
   errorIcon: {
     width: '20px',
     height: '20px',
@@ -809,12 +1005,14 @@ const styles = {
     flexShrink: 0,
   },
 
+
   infoGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, 1fr)',
     gap: '13px',
     marginTop: '22px',
   },
+
 
   infoCard: {
     background: '#ffffff',
@@ -825,6 +1023,7 @@ const styles = {
     gap: '12px',
     alignItems: 'flex-start',
   },
+
 
   infoIcon: {
     width: '34px',
@@ -838,6 +1037,7 @@ const styles = {
     flexShrink: 0,
   },
 
+
   infoTitle: {
     margin: '1px 0 5px',
     fontSize: '12px',
@@ -845,12 +1045,15 @@ const styles = {
     color: '#4a423e',
   },
 
+
   infoText: {
     margin: 0,
     fontSize: '10px',
     lineHeight: 1.5,
     color: '#9b9089',
   },
+
 };
+
 
 export default UploadPage;
