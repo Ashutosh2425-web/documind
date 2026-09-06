@@ -86,6 +86,14 @@ function UploadPage({ token, onDocumentSelect }) {
     }
   };
 
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+
+    window.location.reload();
+  };
+
   return (
     <div style={styles.page}>
 
@@ -96,7 +104,9 @@ function UploadPage({ token, onDocumentSelect }) {
 
           {/* PDF Logo */}
           <div style={styles.logoIcon}>
-            <span style={styles.pdfLogo}>PDF</span>
+            <span style={styles.pdfLogo}>
+              PDF
+            </span>
           </div>
 
           <div>
@@ -123,7 +133,10 @@ function UploadPage({ token, onDocumentSelect }) {
             </span>
           </div>
 
-          <button style={styles.logoutButton}>
+          <button
+            style={styles.logoutButton}
+            onClick={handleLogout}
+          >
             Logout
           </button>
 
@@ -527,7 +540,6 @@ const styles = {
       '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
 
-
   header: {
     height: '72px',
     background: '#ffffff',
@@ -539,13 +551,11 @@ const styles = {
     boxSizing: 'border-box',
   },
 
-
   logoSection: {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
   },
-
 
   logoIcon: {
     width: '38px',
@@ -561,7 +571,6 @@ const styles = {
       '0 3px 8px rgba(255, 128, 102, 0.18)',
   },
 
-
   pdfLogo: {
     fontSize: '10px',
     letterSpacing: '0.5px',
@@ -571,13 +580,11 @@ const styles = {
     lineHeight: 1,
   },
 
-
   logoText: {
     fontSize: '20px',
     fontWeight: '700',
     color: '#292524',
   },
-
 
   logoSubtitle: {
     fontSize: '11px',
@@ -585,13 +592,11 @@ const styles = {
     marginTop: '1px',
   },
 
-
   headerRight: {
     display: 'flex',
     alignItems: 'center',
     gap: '20px',
   },
-
 
   userBadge: {
     display: 'flex',
@@ -601,7 +606,6 @@ const styles = {
     fontSize: '14px',
     fontWeight: '500',
   },
-
 
   userAvatar: {
     width: '32px',
@@ -615,7 +619,6 @@ const styles = {
     fontWeight: '700',
   },
 
-
   logoutButton: {
     border: 'none',
     background: 'transparent',
@@ -624,12 +627,10 @@ const styles = {
     fontSize: '14px',
   },
 
-
   layout: {
     display: 'flex',
     minHeight: 'calc(100vh - 72px)',
   },
-
 
   sidebar: {
     width: '290px',
@@ -641,14 +642,12 @@ const styles = {
     boxSizing: 'border-box',
   },
 
-
   sidebarHeader: {
     padding: '25px 22px 17px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-
 
   sidebarTitle: {
     margin: 0,
@@ -657,13 +656,11 @@ const styles = {
     color: '#302b28',
   },
 
-
   documentCount: {
     margin: '5px 0 0',
     fontSize: '12px',
     color: '#a0958e',
   },
-
 
   documentIcon: {
     width: '38px',
@@ -675,7 +672,6 @@ const styles = {
     justifyContent: 'center',
     fontSize: '17px',
   },
-
 
   sidebarUploadButton: {
     margin: '0 18px 15px',
@@ -694,19 +690,16 @@ const styles = {
       '0 4px 12px rgba(255, 128, 102, 0.18)',
   },
 
-
   plusIcon: {
     fontSize: '19px',
     lineHeight: 1,
   },
-
 
   documentList: {
     flex: 1,
     overflowY: 'auto',
     padding: '0 12px',
   },
-
 
   documentItem: {
     display: 'flex',
@@ -720,7 +713,6 @@ const styles = {
     background: '#ffffff',
     transition: 'all 0.15s ease',
   },
-
 
   fileIcon: {
     width: '34px',
@@ -736,12 +728,10 @@ const styles = {
     flexShrink: 0,
   },
 
-
   documentInfo: {
     minWidth: 0,
     flex: 1,
   },
-
 
   documentName: {
     fontSize: '13px',
@@ -752,13 +742,11 @@ const styles = {
     textOverflow: 'ellipsis',
   },
 
-
   documentDate: {
     fontSize: '10px',
     color: '#a0958e',
     marginTop: '4px',
   },
-
 
   arrow: {
     color: '#b5aaa4',
@@ -766,19 +754,16 @@ const styles = {
     flexShrink: 0,
   },
 
-
   emptyDocuments: {
     padding: '35px 18px',
     textAlign: 'center',
   },
-
 
   emptyIcon: {
     fontSize: '30px',
     marginBottom: '10px',
     opacity: 0.7,
   },
-
 
   emptyTitle: {
     margin: '0 0 5px',
@@ -787,7 +772,6 @@ const styles = {
     color: '#625a55',
   },
 
-
   emptyText: {
     margin: 0,
     fontSize: '11px',
@@ -795,12 +779,10 @@ const styles = {
     color: '#a0958e',
   },
 
-
   sidebarFooter: {
     padding: '16px 20px 20px',
     borderTop: '1px solid #eee5df',
   },
-
 
   supportText: {
     fontSize: '10px',
@@ -808,13 +790,11 @@ const styles = {
     marginBottom: '4px',
   },
 
-
   fileTypes: {
     fontSize: '10px',
     color: '#756b65',
     fontWeight: '600',
   },
-
 
   content: {
     flex: 1,
@@ -822,19 +802,16 @@ const styles = {
     boxSizing: 'border-box',
   },
 
-
   contentInner: {
     maxWidth: '920px',
     margin: '0 auto',
     padding: '70px 45px 50px',
   },
 
-
   welcomeSection: {
     textAlign: 'center',
     marginBottom: '36px',
   },
-
 
   welcomeBadge: {
     display: 'inline-flex',
@@ -849,7 +826,6 @@ const styles = {
     marginBottom: '17px',
   },
 
-
   heading: {
     margin: 0,
     fontSize: '38px',
@@ -859,11 +835,9 @@ const styles = {
     color: '#302b28',
   },
 
-
   headingAccent: {
     color: '#ff8066',
   },
-
 
   description: {
     maxWidth: '590px',
@@ -872,7 +846,6 @@ const styles = {
     fontSize: '15px',
     lineHeight: 1.6,
   },
-
 
   uploadCard: {
     border: '2px dashed #e7d9d1',
@@ -886,19 +859,16 @@ const styles = {
     boxSizing: 'border-box',
   },
 
-
   uploadCardActive: {
     border: '2px dashed #ff8066',
     background: '#fff5f0',
     transform: 'scale(1.005)',
   },
 
-
   uploadContent: {
     textAlign: 'center',
     padding: '35px 20px',
   },
-
 
   uploadIconWrapper: {
     width: '70px',
@@ -911,13 +881,11 @@ const styles = {
     margin: '0 auto 18px',
   },
 
-
   uploadIcon: {
     fontSize: '32px',
     color: '#ff8066',
     fontWeight: '700',
   },
-
 
   loadingCircle: {
     width: '60px',
@@ -932,7 +900,6 @@ const styles = {
     margin: '0 auto 18px',
   },
 
-
   uploadTitle: {
     margin: 0,
     fontSize: '22px',
@@ -940,20 +907,17 @@ const styles = {
     color: '#39322e',
   },
 
-
   uploadDescription: {
     margin: '9px 0 0',
     color: '#958a83',
     fontSize: '13px',
   },
 
-
   orText: {
     margin: '17px 0',
     color: '#b0a59f',
     fontSize: '12px',
   },
-
 
   browseButton: {
     display: 'inline-flex',
@@ -970,13 +934,11 @@ const styles = {
       '0 4px 12px rgba(255, 128, 102, 0.18)',
   },
 
-
   fileHint: {
     margin: '13px 0 0',
     color: '#b0a59f',
     fontSize: '10px',
   },
-
 
   errorBox: {
     marginTop: '18px',
@@ -991,7 +953,6 @@ const styles = {
     fontSize: '12px',
   },
 
-
   errorIcon: {
     width: '20px',
     height: '20px',
@@ -1005,14 +966,12 @@ const styles = {
     flexShrink: 0,
   },
 
-
   infoGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, 1fr)',
     gap: '13px',
     marginTop: '22px',
   },
-
 
   infoCard: {
     background: '#ffffff',
@@ -1023,7 +982,6 @@ const styles = {
     gap: '12px',
     alignItems: 'flex-start',
   },
-
 
   infoIcon: {
     width: '34px',
@@ -1037,14 +995,12 @@ const styles = {
     flexShrink: 0,
   },
 
-
   infoTitle: {
     margin: '1px 0 5px',
     fontSize: '12px',
     fontWeight: '700',
     color: '#4a423e',
   },
-
 
   infoText: {
     margin: 0,
@@ -1054,6 +1010,5 @@ const styles = {
   },
 
 };
-
 
 export default UploadPage;
