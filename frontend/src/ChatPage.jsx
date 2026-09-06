@@ -24,22 +24,27 @@ function ChatPage({ token, document, onBack }) {
     ]);
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/query/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${token}`,
-        },
-        body: JSON.stringify({
-          document_id: document.id,
-          question: currentQuestion,
-        }),
-      });
+      const res = await fetch(
+        'http://127.0.0.1:8000/api/query/',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${token}`,
+          },
+          body: JSON.stringify({
+            document_id: document.id,
+            question: currentQuestion,
+          }),
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Something went wrong');
+        throw new Error(
+          data.error || 'Something went wrong'
+        );
       }
 
       setMessages((prev) => [
@@ -66,15 +71,24 @@ function ChatPage({ token, document, onBack }) {
 
   return (
     <div style={styles.page}>
+
       {/* HEADER */}
       <header style={styles.header}>
+
         <div style={styles.headerLeft}>
-          <button onClick={onBack} style={styles.backButton}>
+
+          <button
+            onClick={onBack}
+            style={styles.backButton}
+          >
             ← Documents
           </button>
 
           <div style={styles.documentInfo}>
-            <div style={styles.documentIcon}>📄</div>
+
+            <div style={styles.documentIcon}>
+              📄
+            </div>
 
             <div>
               <div style={styles.documentName}>
@@ -85,26 +99,34 @@ function ChatPage({ token, document, onBack }) {
                 Document context enabled
               </div>
             </div>
+
           </div>
+
         </div>
 
         {/* BRAND */}
         <div style={styles.brand}>
+
           <div style={styles.logo}>
             <span style={styles.logoPaper}>▤</span>
             <span style={styles.logoSpark}>✦</span>
           </div>
 
           <span>DocuMind</span>
+
         </div>
+
       </header>
+
 
       {/* MAIN CHAT */}
       <main style={styles.chatArea}>
+
         <div style={styles.messagesContainer}>
 
           {/* EMPTY STATE */}
           {messages.length === 0 && !loading && (
+
             <div style={styles.emptyState}>
 
               <div style={styles.emptyLogo}>
@@ -119,15 +141,18 @@ function ChatPage({ token, document, onBack }) {
               <h1 style={styles.emptyTitle}>
                 Ask anything about
                 <br />
-                <span style={styles.titleAccent}>your document</span>
+                <span style={styles.titleAccent}>
+                  your document
+                </span>
               </h1>
 
               <p style={styles.emptyText}>
-                Ask questions, summarize content, or explore information
-                directly from your uploaded document.
+                Ask questions, summarize content, or explore
+                information directly from your uploaded document.
               </p>
 
               <div style={styles.suggestionRow}>
+
                 <button
                   style={styles.suggestion}
                   onClick={() =>
@@ -151,45 +176,63 @@ function ChatPage({ token, document, onBack }) {
                 <button
                   style={styles.suggestion}
                   onClick={() =>
-                    setQuestion('Explain this document in simple terms.')
+                    setQuestion(
+                      'Explain this document in simple terms.'
+                    )
                   }
                 >
                   <span style={styles.suggestionIcon}>✧</span>
                   Explain in simple terms
                 </button>
+
               </div>
 
               <div style={styles.contextBadge}>
                 <span style={styles.contextDot}>●</span>
                 Answers are based on {document.original_filename}
               </div>
+
             </div>
+
           )}
+
 
           {/* MESSAGES */}
           {messages.map((msg, i) => (
+
             <div
               key={i}
               style={{
                 ...styles.messageRow,
                 justifyContent:
-                  msg.role === 'user' ? 'flex-end' : 'flex-start',
+                  msg.role === 'user'
+                    ? 'flex-end'
+                    : 'flex-start',
               }}
             >
+
               {msg.role === 'assistant' && (
+
                 <div style={styles.assistantAvatar}>
                   <span>▤</span>
-                  <small>✦</small>
+                  <small style={styles.assistantAvatarSmall}>
+                    ✦
+                  </small>
                 </div>
+
               )}
+
 
               <div
                 style={{
                   ...styles.messageWrapper,
                   alignItems:
-                    msg.role === 'user' ? 'flex-end' : 'flex-start',
+                    msg.role === 'user'
+                      ? 'flex-end'
+                      : 'flex-start',
                 }}
               >
+
                 <div
                   style={{
                     ...styles.messageBubble,
@@ -201,63 +244,164 @@ function ChatPage({ token, document, onBack }) {
                   {msg.text}
                 </div>
 
+
                 {/* SOURCES */}
-                {msg.sources && msg.sources.length > 0 && (
-                  <details style={styles.sources}>
-                    <summary style={styles.sourcesSummary}>
-                      <span>▤</span>
-                      Sources ({msg.sources.length})
-                    </summary>
+                {msg.sources &&
+                  msg.sources.length > 0 && (
 
-                    <div style={styles.sourcesList}>
-                      {msg.sources.map((src, j) => (
-                        <div key={j} style={styles.sourceCard}>
-                          <div style={styles.sourceHeader}>
-                            <div style={styles.sourceIcon}>
-                              📄
+                    <details style={styles.sources}>
+
+                      <summary style={styles.sourcesSummary}>
+
+                        <span style={styles.sourcesSummaryIcon}>
+                          ▤
+                        </span>
+
+                        <span>
+                          Sources
+                        </span>
+
+                        <span style={styles.sourceCount}>
+                          {msg.sources.length}
+                        </span>
+
+                        <span style={styles.sourcesSummaryArrow}>
+                          ›
+                        </span>
+
+                      </summary>
+
+
+                      <div style={styles.sourcesIntro}>
+                        Retrieved from your document
+                      </div>
+
+
+                      <div style={styles.sourcesList}>
+
+                        {msg.sources.map((src, j) => (
+
+                          <div
+                            key={j}
+                            style={styles.sourceCard}
+                          >
+
+                            {/* SOURCE HEADER */}
+                            <div style={styles.sourceHeader}>
+
+                              <div style={styles.sourceIcon}>
+                                📄
+                              </div>
+
+                              <div style={styles.sourceHeaderInfo}>
+
+                                <div style={styles.sourceTitle}>
+                                  Source {j + 1}
+                                </div>
+
+                                <div style={styles.sourceSubtitle}>
+                                  Retrieved document passage
+                                </div>
+
+                              </div>
+
+
+                              {/* PAGE BADGE */}
+                              {src.page != null && (
+
+                                <div style={styles.pageBadge}>
+
+                                  <span style={styles.pageIcon}>
+                                    #
+                                  </span>
+
+                                  Page {src.page}
+
+                                </div>
+
+                              )}
+
                             </div>
 
-                            <div style={styles.sourceTitle}>
-                              Source {j + 1}
+
+                            {/* SOURCE TEXT */}
+                            <div style={styles.sourceText}>
+
+                              {src.text && src.text.length > 300
+                                ? `${src.text.slice(0, 300)}...`
+                                : src.text}
+
                             </div>
+
+
+                            {/* SOURCE FOOTER */}
+                            <div style={styles.sourceFooter}>
+
+                              <span>
+                                Document source
+                              </span>
+
+                              {src.chunk_index != null && (
+
+                                <span>
+                                  Chunk {src.chunk_index + 1}
+                                </span>
+
+                              )}
+
+                            </div>
+
                           </div>
 
-                          <div style={styles.sourceText}>
-                            {src.length > 250
-                              ? `${src.slice(0, 250)}...`
-                              : src}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </details>
-                )}
+                        ))}
+
+                      </div>
+
+                    </details>
+
+                  )}
+
               </div>
+
             </div>
+
           ))}
+
 
           {/* LOADING */}
           {loading && (
+
             <div style={styles.messageRow}>
+
               <div style={styles.assistantAvatar}>
                 <span>▤</span>
-                <small>✦</small>
+                <small style={styles.assistantAvatarSmall}>
+                  ✦
+                </small>
               </div>
 
               <div style={styles.typingBubble}>
+
                 <span style={styles.dot}>●</span>
                 <span style={styles.dot}>●</span>
                 <span style={styles.dot}>●</span>
+
                 <span style={styles.thinkingText}>
                   Searching your document...
                 </span>
+
               </div>
+
             </div>
+
           )}
+
 
           {/* ERROR */}
           {error && (
+
             <div style={styles.errorBox}>
+
               <div style={styles.errorTitle}>
                 Something went wrong
               </div>
@@ -265,13 +409,19 @@ function ChatPage({ token, document, onBack }) {
               <div style={styles.errorText}>
                 {error}
               </div>
+
             </div>
+
           )}
+
         </div>
+
 
         {/* INPUT */}
         <div style={styles.inputSection}>
+
           <div style={styles.inputBox}>
+
             <textarea
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
@@ -288,7 +438,9 @@ function ChatPage({ token, document, onBack }) {
               style={{
                 ...styles.sendButton,
                 opacity:
-                  loading || !question.trim() ? 0.45 : 1,
+                  loading || !question.trim()
+                    ? 0.45
+                    : 1,
                 cursor:
                   loading || !question.trim()
                     ? 'not-allowed'
@@ -297,9 +449,12 @@ function ChatPage({ token, document, onBack }) {
             >
               ↑
             </button>
+
           </div>
 
+
           <div style={styles.inputFooter}>
+
             <span>
               <span style={styles.footerDot}>●</span>
               Document context enabled
@@ -308,14 +463,20 @@ function ChatPage({ token, document, onBack }) {
             <span>
               Enter ↵ to send · Shift + Enter for a new line
             </span>
+
           </div>
+
         </div>
+
       </main>
+
     </div>
   );
 }
 
+
 const styles = {
+
   page: {
     minHeight: '100vh',
     background: '#fffaf7',
@@ -325,6 +486,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
   },
+
 
   /* HEADER */
 
@@ -394,6 +556,7 @@ const styles = {
     color: '#a48e85',
   },
 
+
   /* BRAND */
 
   brand: {
@@ -415,7 +578,8 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: '0 5px 14px rgba(255, 128, 102, 0.25)',
+    boxShadow:
+      '0 5px 14px rgba(255, 128, 102, 0.25)',
   },
 
   logoPaper: {
@@ -429,8 +593,10 @@ const styles = {
     top: '-7px',
     color: '#f4b942',
     fontSize: '14px',
-    textShadow: '0 1px 2px rgba(0,0,0,0.08)',
+    textShadow:
+      '0 1px 2px rgba(0,0,0,0.08)',
   },
+
 
   /* CHAT */
 
@@ -448,6 +614,7 @@ const styles = {
     flex: 1,
     padding: '38px 24px 150px',
   },
+
 
   /* EMPTY STATE */
 
@@ -468,7 +635,8 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     margin: '0 auto 20px',
-    boxShadow: '0 8px 30px rgba(255, 128, 102, 0.12)',
+    boxShadow:
+      '0 8px 30px rgba(255, 128, 102, 0.12)',
   },
 
   emptyLogoPaper: {
@@ -530,7 +698,8 @@ const styles = {
     borderRadius: '13px',
     fontSize: '13px',
     cursor: 'pointer',
-    boxShadow: '0 3px 12px rgba(77, 48, 38, 0.04)',
+    boxShadow:
+      '0 3px 12px rgba(77, 48, 38, 0.04)',
     transition: 'all 0.2s ease',
   },
 
@@ -557,6 +726,7 @@ const styles = {
     color: '#f4b942',
     fontSize: '9px',
   },
+
 
   /* MESSAGES */
 
@@ -587,7 +757,8 @@ const styles = {
     background: '#ff8066',
     color: '#ffffff',
     borderBottomRightRadius: '5px',
-    boxShadow: '0 5px 16px rgba(255, 128, 102, 0.18)',
+    boxShadow:
+      '0 5px 16px rgba(255, 128, 102, 0.18)',
   },
 
   assistantBubble: {
@@ -595,7 +766,8 @@ const styles = {
     color: '#403531',
     border: '1px solid #f0e5df',
     borderBottomLeftRadius: '5px',
-    boxShadow: '0 3px 15px rgba(77, 48, 38, 0.05)',
+    boxShadow:
+      '0 3px 15px rgba(77, 48, 38, 0.05)',
   },
 
   assistantAvatar: {
@@ -617,61 +789,159 @@ const styles = {
     position: 'absolute',
     right: '-2px',
     top: '-4px',
+    color: '#f4b942',
+    fontSize: '11px',
   },
+
 
   /* SOURCES */
 
   sources: {
     width: '100%',
-    marginTop: '10px',
+    marginTop: '12px',
   },
 
   sourcesSummary: {
     cursor: 'pointer',
-    color: '#e76f51',
+    color: '#d9674b',
     fontSize: '13px',
-    fontWeight: 700,
+    fontWeight: 750,
     display: 'flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: '7px',
+    listStyle: 'none',
+    padding: '7px 10px',
+    borderRadius: '9px',
+    width: 'fit-content',
+    background: '#fff4ef',
+    border: '1px solid #f6ddd3',
+  },
+
+  sourcesSummaryIcon: {
+    fontSize: '13px',
+    color: '#ff8066',
+  },
+
+  sourceCount: {
+    minWidth: '20px',
+    height: '20px',
+    padding: '0 5px',
+    borderRadius: '10px',
+    background: '#ff8066',
+    color: '#ffffff',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '10px',
+    fontWeight: 800,
+    boxSizing: 'border-box',
+  },
+
+  sourcesSummaryArrow: {
+    fontSize: '18px',
+    lineHeight: 1,
+    color: '#b78c7e',
+    transform: 'rotate(90deg)',
+  },
+
+  sourcesIntro: {
+    marginTop: '10px',
+    marginBottom: '8px',
+    fontSize: '11px',
+    color: '#a48e85',
+    fontWeight: 600,
   },
 
   sourcesList: {
-    marginTop: '9px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
+    gap: '9px',
   },
 
   sourceCard: {
-    background: '#fffdfb',
-    border: '1px solid #f0e5df',
-    borderRadius: '11px',
-    padding: '11px 13px',
+    background: '#ffffff',
+    border: '1px solid #eaded8',
+    borderRadius: '13px',
+    padding: '13px 14px',
+    boxShadow:
+      '0 3px 13px rgba(77, 48, 38, 0.045)',
   },
 
   sourceHeader: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    marginBottom: '5px',
+    gap: '10px',
+    marginBottom: '10px',
   },
 
   sourceIcon: {
-    fontSize: '13px',
+    width: '30px',
+    height: '30px',
+    borderRadius: '8px',
+    background: '#fff0e9',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '14px',
+    flexShrink: 0,
+  },
+
+  sourceHeaderInfo: {
+    flex: 1,
+    minWidth: 0,
   },
 
   sourceTitle: {
     fontSize: '12px',
-    fontWeight: 750,
-    color: '#806f68',
+    fontWeight: 800,
+    color: '#4b3d38',
+  },
+
+  sourceSubtitle: {
+    marginTop: '2px',
+    fontSize: '10px',
+    color: '#a18d84',
+  },
+
+  pageBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    padding: '5px 8px',
+    borderRadius: '8px',
+    background: '#fff3d9',
+    color: '#806638',
+    fontSize: '10px',
+    fontWeight: 800,
+    whiteSpace: 'nowrap',
+  },
+
+  pageIcon: {
+    fontSize: '9px',
+    fontWeight: 900,
   },
 
   sourceText: {
     fontSize: '12px',
-    lineHeight: 1.5,
-    color: '#897770',
+    lineHeight: 1.6,
+    color: '#6f6059',
+    background: '#fffaf7',
+    borderRadius: '9px',
+    padding: '9px 10px',
+    border: '1px solid #f3e8e2',
   },
+
+  sourceFooter: {
+    marginTop: '9px',
+    paddingTop: '8px',
+    borderTop: '1px solid #f1e7e2',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontSize: '10px',
+    color: '#ad9990',
+  },
+
 
   /* TYPING */
 
@@ -683,7 +953,8 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '4px',
-    boxShadow: '0 3px 15px rgba(77, 48, 38, 0.05)',
+    boxShadow:
+      '0 3px 15px rgba(77, 48, 38, 0.05)',
   },
 
   dot: {
@@ -696,6 +967,7 @@ const styles = {
     fontSize: '12px',
     color: '#99857c',
   },
+
 
   /* ERROR */
 
@@ -721,6 +993,7 @@ const styles = {
     fontSize: '13px',
     color: '#d46651',
   },
+
 
   /* INPUT */
 
@@ -748,7 +1021,8 @@ const styles = {
     alignItems: 'flex-end',
     gap: '10px',
     boxSizing: 'border-box',
-    boxShadow: '0 7px 28px rgba(77, 48, 38, 0.08)',
+    boxShadow:
+      '0 7px 28px rgba(77, 48, 38, 0.08)',
   },
 
   textarea: {
@@ -776,7 +1050,8 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: '0 5px 13px rgba(255, 128, 102, 0.22)',
+    boxShadow:
+      '0 5px 13px rgba(255, 128, 102, 0.22)',
   },
 
   inputFooter: {
@@ -794,6 +1069,7 @@ const styles = {
     fontSize: '8px',
     marginRight: '5px',
   },
+
 };
 
 export default ChatPage;
