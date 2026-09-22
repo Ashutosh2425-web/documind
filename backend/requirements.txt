@@ -7,3 +7,4 @@ python-docx
 chromadb
 google-genai
 gunicorn
+psycopg[binary]
