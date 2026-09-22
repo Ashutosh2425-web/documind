@@ -21,10 +21,16 @@ function AuthPage({ onLogin }) {
       ? '/api/signup/'
       : '/api/login/';
 
+    const API_BASE_URL =
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1'
+        ? 'http://127.0.0.1:8000'
+        : '';
+
     try {
 
       const res = await fetch(
-        `http://127.0.0.1:8000${endpoint}`,
+        `${API_BASE_URL}${endpoint}`,
         {
           method: 'POST',
           headers: {
