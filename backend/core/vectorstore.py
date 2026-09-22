@@ -1,11 +1,33 @@
 import chromadb
 
 
-chroma_client = chromadb.PersistentClient(path="./chroma_db")
+_chroma_client = None
+_collection = None
 
-collection = chroma_client.get_or_create_collection(
-    name="documind_chunks"
-)
+
+def get_collection():
+    """
+    Create the ChromaDB client and collection only when needed.
+
+    This lazy initialization prevents Django from starting ChromaDB
+    during application startup, which is important for serverless
+    environments such as Vercel.
+    """
+
+    global _chroma_client
+    global _collection
+
+    if _collection is None:
+
+        _chroma_client = chromadb.PersistentClient(
+            path="./chroma_db"
+        )
+
+        _collection = _chroma_client.get_or_create_collection(
+            name="documind_chunks"
+        )
+
+    return _collection
 
 
 def add_chunks_to_store(document_id, chunks, embeddings):
@@ -18,6 +40,8 @@ def add_chunks_to_store(document_id, chunks, embeddings):
             "page": 1
         }
     """
+
+    collection = get_collection()
 
     ids = [
         f"doc{document_id}_chunk{i}"
@@ -53,6 +77,8 @@ def query_store(document_id, query_embedding, top_k=3):
     Returns the most relevant text chunks together with
     their metadata, including page numbers.
     """
+
+    collection = get_collection()
 
     results = collection.query(
         query_embeddings=[query_embedding],
