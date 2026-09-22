@@ -9,8 +9,11 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+
 import os
 from pathlib import Path
+from urllib.parse import urlparse, unquote
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -77,12 +80,41 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+
+if DATABASE_URL:
+
+    parsed_database_url = urlparse(DATABASE_URL)
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': unquote(
+                parsed_database_url.path.lstrip('/')
+            ),
+            'USER': unquote(
+                parsed_database_url.username or ''
+            ),
+            'PASSWORD': unquote(
+                parsed_database_url.password or ''
+            ),
+            'HOST': parsed_database_url.hostname,
+            'PORT': parsed_database_url.port or 5432,
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
+        }
     }
-}
+
+else:
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -117,7 +149,6 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
 
@@ -133,5 +164,6 @@ REST_FRAMEWORK = {
     ],
 }
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024 
-FILE_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024  
+DATA_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024
